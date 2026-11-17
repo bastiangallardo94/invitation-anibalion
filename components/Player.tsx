@@ -7,12 +7,12 @@ import * as THREE from "three";
 import { PlayerObject } from "skin3d";
 import { interact } from "@/lib/actions";
 import { animateCharacter, animateSwing, type Locomotion } from "@/lib/character/animation";
-import { makeSkinTexture } from "@/lib/character/skin";
 import { resolveMovement } from "@/lib/collision";
 import { CHEST_POS, PLAYER_SPAWN, WORLD_HALF } from "@/lib/constants";
 import { consumeTouchLook, touchInput } from "@/lib/input";
 import { playerState } from "@/lib/playerState";
 import { useGame } from "@/lib/store";
+import { getTextures } from "@/lib/textures";
 
 const keys = {
   forward: false,
@@ -45,7 +45,7 @@ export function Player() {
   const character = useMemo(() => {
     const player = new PlayerObject({ materialType: "standard" });
     player.backEquipment = null;
-    player.skin.map = makeSkinTexture();
+    player.skin.map = getTextures().skin;
     player.traverse((obj) => {
       if ((obj as THREE.Mesh).isMesh) {
         obj.castShadow = true;

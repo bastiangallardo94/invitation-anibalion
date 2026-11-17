@@ -1,287 +1,90 @@
 import * as THREE from "three";
 
-const S = 16;
-
-function shade(hex: string, amt: number): string {
-  const n = parseInt(hex.slice(1), 16);
-  let r = (n >> 16) & 255;
-  let g = (n >> 8) & 255;
-  let b = n & 255;
-  r = Math.max(0, Math.min(255, r + amt));
-  g = Math.max(0, Math.min(255, g + amt));
-  b = Math.max(0, Math.min(255, b + amt));
-  return `rgb(${r},${g},${b})`;
-}
-
-function noisy(ctx: CanvasRenderingContext2D, base: string, amp: number) {
-  for (let y = 0; y < S; y++) {
-    for (let x = 0; x < S; x++) {
-      ctx.fillStyle = shade(base, Math.floor(Math.random() * (amp * 2 + 1) - amp));
-      ctx.fillRect(x, y, 1, 1);
-    }
-  }
-}
-
-function makeTexture(
-  draw: (ctx: CanvasRenderingContext2D) => void,
-): THREE.CanvasTexture {
-  const canvas = document.createElement("canvas");
-  canvas.width = S;
-  canvas.height = S;
-  const ctx = canvas.getContext("2d")!;
-  ctx.clearRect(0, 0, S, S);
-  draw(ctx);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.magFilter = THREE.NearestFilter;
-  tex.minFilter = THREE.NearestFilter;
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
-}
-
-function mat(map: THREE.Texture): THREE.MeshStandardMaterial {
-  return new THREE.MeshStandardMaterial({ map, roughness: 1 });
-}
-
 export interface Textures {
-  grassTop: THREE.CanvasTexture;
-  grassSide: THREE.CanvasTexture;
-  dirt: THREE.CanvasTexture;
-  stone: THREE.CanvasTexture;
-  planks: THREE.CanvasTexture;
-  logSide: THREE.CanvasTexture;
-  logTop: THREE.CanvasTexture;
-  leaves: THREE.CanvasTexture;
-  chest: THREE.CanvasTexture;
-  sand: THREE.CanvasTexture;
-  tnt: THREE.CanvasTexture;
-  gravel: THREE.CanvasTexture;
-  birchSide: THREE.CanvasTexture;
-  birchTop: THREE.CanvasTexture;
-  birchLeaves: THREE.CanvasTexture;
-  flowerRed: THREE.CanvasTexture;
-  flowerYellow: THREE.CanvasTexture;
-  tallGrass: THREE.CanvasTexture;
-  cakeTop: THREE.CanvasTexture;
-  cakeSide: THREE.CanvasTexture;
+  grassTop: THREE.Texture;
+  grassSide: THREE.Texture;
+  dirt: THREE.Texture;
+  stone: THREE.Texture;
+  planks: THREE.Texture;
+  logSide: THREE.Texture;
+  logTop: THREE.Texture;
+  leaves: THREE.Texture;
+  chest: THREE.Texture;
+  sand: THREE.Texture;
+  tnt: THREE.Texture;
+  gravel: THREE.Texture;
+  birchSide: THREE.Texture;
+  birchTop: THREE.Texture;
+  birchLeaves: THREE.Texture;
+  flowerRed: THREE.Texture;
+  flowerYellow: THREE.Texture;
+  tallGrass: THREE.Texture;
+  cakeTop: THREE.Texture;
+  cakeSide: THREE.Texture;
+  skin: THREE.Texture;
 }
 
 export type BlockMaterials = Record<string, THREE.MeshStandardMaterial[]>;
 
+const URLS: Record<keyof Textures, string> = {
+  grassTop: "/textures/blocks/grass_top.png",
+  grassSide: "/textures/blocks/grass_side.png",
+  dirt: "/textures/blocks/dirt.png",
+  stone: "/textures/blocks/stone.png",
+  planks: "/textures/blocks/planks.png",
+  logSide: "/textures/blocks/log_side.png",
+  logTop: "/textures/blocks/log_top.png",
+  leaves: "/textures/blocks/leaves.png",
+  chest: "/textures/blocks/chest.png",
+  sand: "/textures/blocks/sand.png",
+  tnt: "/textures/blocks/tnt.png",
+  gravel: "/textures/blocks/gravel.png",
+  birchSide: "/textures/blocks/birch_side.png",
+  birchTop: "/textures/blocks/birch_top.png",
+  birchLeaves: "/textures/blocks/birch_leaves.png",
+  flowerRed: "/textures/blocks/flower_red.png",
+  flowerYellow: "/textures/blocks/flower_yellow.png",
+  tallGrass: "/textures/blocks/tall_grass.png",
+  cakeTop: "/textures/blocks/cake_top.png",
+  cakeSide: "/textures/blocks/cake_side.png",
+  skin: "/textures/skin.png",
+};
+
 let texCache: Textures | null = null;
 let matCache: BlockMaterials | null = null;
+let loadPromise: Promise<void> | null = null;
 
-function drawFlower(
-  ctx: CanvasRenderingContext2D,
-  petal: string,
-  petalLight: string,
-  center: string,
-) {
-  ctx.fillStyle = "#3f7d2f";
-  ctx.fillRect(7, 7, 1, 9); // stem
-  ctx.fillRect(5, 11, 2, 1); // leaf
-  ctx.fillRect(9, 12, 2, 1); // leaf
-  ctx.fillStyle = petal;
-  ctx.fillRect(7, 1, 2, 1);
-  ctx.fillRect(6, 2, 4, 1);
-  ctx.fillRect(5, 3, 6, 2);
-  ctx.fillRect(6, 5, 4, 1);
-  ctx.fillRect(7, 6, 2, 1);
-  ctx.fillStyle = petalLight;
-  ctx.fillRect(6, 3, 2, 1);
-  ctx.fillRect(8, 4, 2, 1);
-  ctx.fillStyle = center;
-  ctx.fillRect(7, 3, 2, 2);
+/** Loads every texture image once. Call before rendering the 3D scene. */
+export function loadAllTextures(): Promise<void> {
+  if (texCache) return Promise.resolve();
+  if (loadPromise) return loadPromise;
+
+  const loader = new THREE.TextureLoader();
+  const cache = {} as Textures;
+  texCache = cache;
+
+  const entries = Object.entries(URLS) as [keyof Textures, string][];
+  loadPromise = Promise.all(
+    entries.map(async ([key, url]) => {
+      const tex = await loader.loadAsync(url);
+      tex.magFilter = THREE.NearestFilter;
+      tex.minFilter = THREE.NearestFilter;
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.needsUpdate = true;
+      cache[key] = tex;
+    }),
+  ).then(() => undefined);
+
+  return loadPromise;
 }
 
 export function getTextures(): Textures {
-  if (texCache) return texCache;
-
-  const grassTop = makeTexture((ctx) => noisy(ctx, "#8fce54", 14));
-  const dirt = makeTexture((ctx) => noisy(ctx, "#966c4a", 18));
-  const grassSide = makeTexture((ctx) => {
-    noisy(ctx, "#966c4a", 18);
-    for (let y = 0; y < 4; y++) {
-      for (let x = 0; x < S; x++) {
-        ctx.fillStyle = shade("#79c04b", Math.floor(Math.random() * 15 - 7));
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  });
-  const stone = makeTexture((ctx) => noisy(ctx, "#8a8a8a", 16));
-  const planks = makeTexture((ctx) => {
-    noisy(ctx, "#b8945f", 10);
-    ctx.fillStyle = "#8a6238";
-    for (let y = 0; y < S; y += 4) ctx.fillRect(0, y, S, 1);
-  });
-  const logSide = makeTexture((ctx) => {
-    for (let x = 0; x < S; x++) {
-      ctx.fillStyle = shade("#6b4a2b", Math.floor(Math.random() * 24 - 12));
-      ctx.fillRect(x, 0, 1, S);
-    }
-  });
-  const logTop = makeTexture((ctx) => {
-    noisy(ctx, "#9c7a4e", 10);
-    ctx.strokeStyle = "#7a5a35";
-    for (let r = 1; r < 8; r += 2) ctx.strokeRect(r, r, S - 2 * r, S - 2 * r);
-  });
-  const leaves = makeTexture((ctx) => {
-    for (let y = 0; y < S; y++) {
-      for (let x = 0; x < S; x++) {
-        ctx.fillStyle = shade("#3f7d2f", Math.floor(Math.random() * 32 - 16));
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  });
-  const chest = makeTexture((ctx) => {
-    noisy(ctx, "#9c6b35", 10);
-    ctx.fillStyle = "#5e3c1a";
-    ctx.fillRect(0, 0, S, 1);
-    ctx.fillRect(0, S - 1, S, 1);
-    ctx.fillRect(0, 0, 1, S);
-    ctx.fillRect(S - 1, 0, 1, S);
-  });
-  const sand = makeTexture((ctx) => noisy(ctx, "#dbd3a0", 10));
-
-  const tnt = makeTexture((ctx) => {
-    for (let y = 0; y < S; y++) {
-      for (let x = 0; x < S; x++) {
-        ctx.fillStyle = shade("#c0392b", Math.floor(Math.random() * 20 - 10));
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-    ctx.fillStyle = "#e8e0d0";
-    ctx.fillRect(0, 6, S, 4);
-
-    ctx.fillStyle = "#1a1a1a";
-    const px = (x: number, y: number) => ctx.fillRect(x, y, 1, 1);
-    const letter = (ch: string, ox: number, oy: number) => {
-      if (ch === "T") {
-        px(ox, oy);
-        px(ox + 1, oy);
-        px(ox + 2, oy);
-        px(ox + 1, oy + 1);
-        px(ox + 1, oy + 2);
-      }
-      if (ch === "N") {
-        px(ox, oy);
-        px(ox, oy + 1);
-        px(ox, oy + 2);
-        px(ox + 1, oy + 1);
-        px(ox + 2, oy);
-        px(ox + 2, oy + 1);
-        px(ox + 2, oy + 2);
-      }
-    };
-    letter("T", 2, 6);
-    letter("N", 7, 6);
-    letter("T", 12, 6);
-
-    const fw = (cx: number, cy: number, color: string) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(cx - 1, cy, 3, 1);
-      ctx.fillRect(cx, cy - 1, 1, 3);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(cx, cy, 1, 1);
-    };
-    fw(4, 2, "#7fd8ff");
-    fw(12, 3, "#ffe066");
-    fw(5, 13, "#ff9bd2");
-    fw(11, 12, "#ffffff");
-    fw(8, 1, "#ffb347");
-  });
-
-  const gravel = makeTexture((ctx) => {
-    noisy(ctx, "#8a7f78", 26);
-    for (let i = 0; i < 26; i++) {
-      ctx.fillStyle = shade("#8a7f78", Math.random() > 0.5 ? 40 : -40);
-      ctx.fillRect(Math.floor(Math.random() * S), Math.floor(Math.random() * S), 1, 1);
-    }
-  });
-
-  const birchSide = makeTexture((ctx) => {
-    noisy(ctx, "#d8d3c8", 8);
-    for (let i = 0; i < 7; i++) {
-      ctx.fillStyle = "#3b3b3b";
-      const y = Math.floor(Math.random() * S);
-      const x = Math.floor(Math.random() * (S - 4));
-      ctx.fillRect(x, y, 2 + Math.floor(Math.random() * 3), 1);
-    }
-  });
-  const birchTop = makeTexture((ctx) => {
-    noisy(ctx, "#d8d3c8", 8);
-    ctx.strokeStyle = "#9a9488";
-    for (let r = 1; r < 8; r += 2) ctx.strokeRect(r, r, S - 2 * r, S - 2 * r);
-  });
-  const birchLeaves = makeTexture((ctx) => {
-    for (let y = 0; y < S; y++) {
-      for (let x = 0; x < S; x++) {
-        ctx.fillStyle = shade("#6fae4b", Math.floor(Math.random() * 30 - 15));
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  });
-
-  const flowerRed = makeTexture((ctx) => drawFlower(ctx, "#d64545", "#ef6b6b", "#ffe066"));
-  const flowerYellow = makeTexture((ctx) => drawFlower(ctx, "#f2c94c", "#ffe082", "#c98a1b"));
-  const tallGrass = makeTexture((ctx) => {
-    const blades: [number, number, number][] = [
-      [3, 6, 15],
-      [5, 9, 15],
-      [7, 4, 15],
-      [9, 8, 15],
-      [11, 6, 14],
-      [13, 9, 15],
-    ];
-    for (const [x, y0, y1] of blades) {
-      ctx.fillStyle = shade("#4f9c3a", Math.floor(Math.random() * 24 - 12));
-      ctx.fillRect(x, y0, 1, y1 - y0);
-    }
-  });
-
-  const cakeTop = makeTexture((ctx) => {
-    ctx.fillStyle = "#f3e8d6";
-    ctx.fillRect(0, 0, S, S);
-    for (let i = 0; i < 10; i++) {
-      ctx.fillStyle = i % 2 ? "#e0557f" : "#ffd54f";
-      ctx.fillRect(2 + Math.floor(Math.random() * 12), 2 + Math.floor(Math.random() * 12), 1, 1);
-    }
-    ctx.fillStyle = "#d64545";
-    ctx.fillRect(7, 7, 2, 2);
-  });
-  const cakeSide = makeTexture((ctx) => {
-    ctx.fillStyle = "#f3e8d6";
-    ctx.fillRect(0, 0, S, S);
-    ctx.fillStyle = "#e8b9c8";
-    ctx.fillRect(0, 5, S, 2);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, S, 3);
-    ctx.fillStyle = "#d9a15b";
-    ctx.fillRect(0, 12, S, 2);
-  });
-
-  texCache = {
-    grassTop,
-    grassSide,
-    dirt,
-    stone,
-    planks,
-    logSide,
-    logTop,
-    leaves,
-    chest,
-    sand,
-    tnt,
-    gravel,
-    birchSide,
-    birchTop,
-    birchLeaves,
-    flowerRed,
-    flowerYellow,
-    tallGrass,
-    cakeTop,
-    cakeSide,
-  };
+  if (!texCache) throw new Error("Textures are not loaded yet");
   return texCache;
+}
+
+function mat(map: THREE.Texture): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({ map, roughness: 1 });
 }
 
 export function getBlockMaterials(): BlockMaterials {

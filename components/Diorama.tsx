@@ -122,7 +122,7 @@ function AnimatedCreature({
 export function Diorama() {
   const grassMat = useMemo(() => {
     const t = getTextures().grassTop.clone();
-    t.repeat.set(EXT, EXT);
+    t.repeat.set(EXT * 2, EXT * 2);
     t.wrapS = THREE.RepeatWrapping;
     t.wrapT = THREE.RepeatWrapping;
     t.needsUpdate = true;
@@ -150,7 +150,7 @@ export function Diorama() {
   return (
     <group>
       {/* Extended ground so the sides of the island never look empty. */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} material={grassMat} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} material={grassMat} receiveShadow>
         <planeGeometry args={[EXT * 2, EXT * 2]} />
       </mesh>
 

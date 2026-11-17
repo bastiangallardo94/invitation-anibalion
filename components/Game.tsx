@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Player } from "./Player";
 import { Sky } from "./Sky";
@@ -14,6 +14,24 @@ import { TouchControls } from "./ui/TouchControls";
 import { downloadImage } from "@/lib/download";
 import { useGame } from "@/lib/store";
 import { useIsTouch } from "@/lib/useIsTouch";
+import { loadAllTextures } from "@/lib/textures";
+
+function TextureGate({ children }: { children: React.ReactNode }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    loadAllTextures()
+      .catch((err) => console.error("No se pudieron cargar las texturas", err))
+      .finally(() => {
+        if (alive) setReady(true);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  if (!ready) return null;
+  return <>{children}</>;
+}
 
 export default function Game() {
   const chestOpen = useGame((s) => s.chestOpen);
@@ -52,9 +70,11 @@ export default function Game() {
           shadow-camera-far={70}
         />
         <Suspense fallback={null}>
-          <World />
-          <Player />
-          <Tnt />
+          <TextureGate>
+            <World />
+            <Player />
+            <Tnt />
+          </TextureGate>
         </Suspense>
       </Canvas>
 
