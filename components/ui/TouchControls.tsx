@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { getActionLabel, interact } from "@/lib/actions";
 import { touchInput } from "@/lib/input";
 import { useGame } from "@/lib/store";
@@ -91,15 +92,17 @@ function LookPad() {
 }
 
 export function TouchControls() {
-  const ctx = useGame((s) => ({
-    chestOpen: s.chestOpen,
-    nearChest: s.nearChest,
-    chestLen: s.chestItems.length,
-    phase: s.phase,
-    nearTnt: s.nearTnt,
-    tnt: s.inventory.tnt,
-    lighter: s.inventory.lighter,
-  }));
+  const ctx = useGame(
+    useShallow((s) => ({
+      chestOpen: s.chestOpen,
+      nearChest: s.nearChest,
+      chestLen: s.chestItems.length,
+      phase: s.phase,
+      nearTnt: s.nearTnt,
+      tnt: s.inventory.tnt,
+      lighter: s.inventory.lighter,
+    })),
+  );
 
   const label = getActionLabel(ctx);
 
