@@ -31,17 +31,25 @@ export function InvitationModal() {
           />
         </div>
 
-        <div className="mt-4 flex w-full gap-2">
+        <div className="mt-4 grid w-full grid-cols-2 gap-2">
           <a
             href="/invitacion-anibal.jpeg"
             download="invitacion-anibal.jpeg"
-            className="flex-1 rounded border-2 border-white bg-[#7ab648] px-4 py-2.5 text-center font-bold text-white shadow transition hover:bg-[#8cc95a]"
+            className="rounded border-2 border-white bg-[#7ab648] px-4 py-2.5 text-center font-bold text-white shadow transition hover:bg-[#8cc95a]"
           >
             Descargar
           </a>
+          <a
+            href="https://www.google.com/maps?q=-33.6552842,-70.9957421&z=17&hl=es"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded border-2 border-white bg-[#3f7fd6] px-4 py-2.5 text-center font-bold text-white shadow transition hover:bg-[#5d94e8]"
+          >
+            Ver mapa
+          </a>
           <button
             onClick={reset}
-            className="flex-1 rounded border-2 border-white bg-[#a83f3f] px-4 py-2.5 font-bold text-white shadow transition hover:bg-[#c04b4b]"
+            className="col-span-2 rounded border-2 border-white bg-[#a83f3f] px-4 py-2.5 font-bold text-white shadow transition hover:bg-[#c04b4b]"
           >
             Repetir
           </button>
