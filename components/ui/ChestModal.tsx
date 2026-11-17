@@ -13,11 +13,11 @@ export function ChestModal() {
   return (
     <div
       className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 font-mono"
-      onClick={() => close(false)}
+      onPointerDown={() => close(false)}
     >
       <div
         className="w-[min(92vw,420px)] rounded-lg border-4 border-[#5e3c1a] bg-[#c6a15b] p-5 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <h2 className="mb-1 text-center text-xl font-bold text-[#3a2510]">
           Cofre

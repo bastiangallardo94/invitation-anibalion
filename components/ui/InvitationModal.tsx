@@ -9,11 +9,11 @@ export function InvitationModal() {
   return (
     <div
       className="absolute inset-0 z-30 flex items-center justify-center bg-black/70 font-mono"
-      onClick={hide}
+      onPointerDown={hide}
     >
       <div
         className="flex max-h-[94vh] w-[min(94vw,520px)] flex-col items-center rounded-lg border-4 border-[#d4a0c0] bg-[#2a1a2e] p-5 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <h2 className="mb-1 text-center text-xl font-bold text-white">
           ¡Boom! Tu invitación está lista
