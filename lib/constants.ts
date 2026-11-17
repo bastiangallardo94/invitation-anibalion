@@ -23,13 +23,19 @@ export const TREE_POSITIONS: Vec3[] = [
   { x: 3, y: 0, z: -7 },
 ];
 
+export const BIRCH_POSITIONS: Vec3[] = [
+  { x: -5, y: 0, z: 6 },
+  { x: 6, y: 0, z: 5 },
+  { x: -7, y: 0, z: -1 },
+];
+
 export function buildSolids(): AABB[] {
   const solids: AABB[] = [];
   solids.push({
     min: [CHEST_POS.x - 0.5, 0, CHEST_POS.z - 0.5],
     max: [CHEST_POS.x + 0.5, 1, CHEST_POS.z + 0.5],
   });
-  for (const t of TREE_POSITIONS) {
+  for (const t of [...TREE_POSITIONS, ...BIRCH_POSITIONS]) {
     solids.push({
       min: [t.x - 0.5, 0, t.z - 0.5],
       max: [t.x + 0.5, 4, t.z + 0.5],

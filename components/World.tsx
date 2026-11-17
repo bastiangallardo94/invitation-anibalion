@@ -4,39 +4,45 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { Block } from "./Block";
 import { Chest } from "./Chest";
-import { TREE_POSITIONS, WORLD_SIZE } from "@/lib/constants";
+import { Balloons, BirthdayCorner, Path, Plants } from "./Decor";
+import { BIRCH_POSITIONS, TREE_POSITIONS, WORLD_SIZE } from "@/lib/constants";
 import { getTextures } from "@/lib/textures";
 
-function Tree({ x, z }: { x: number; z: number }) {
-  const trunks: [number, number, number][] = [];
-  for (let i = 0; i < 4; i++) trunks.push([x, i + 0.5, z]);
+function Tree({ x, z, variant = "oak" }: { x: number; z: number; variant?: "oak" | "birch" }) {
+  const trunkType = variant === "birch" ? "birchLog" : "log";
+  const leafType = variant === "birch" ? "birchLeaves" : "leaves";
+  const height = variant === "birch" ? 5 : 4;
 
+  const trunks: [number, number, number][] = [];
+  for (let i = 0; i < height; i++) trunks.push([x, i + 0.5, z]);
+
+  const topY = height;
   const leaves: [number, number, number][] = [];
   for (let dx = -1; dx <= 1; dx++) {
     for (let dz = -1; dz <= 1; dz++) {
       if (dx === 0 && dz === 0) continue;
-      leaves.push([x + dx, 4, z + dz]);
+      leaves.push([x + dx, topY, z + dz]);
     }
   }
   for (let dx = -1; dx <= 1; dx++) {
     for (let dz = -1; dz <= 1; dz++) {
-      leaves.push([x + dx, 5, z + dz]);
+      leaves.push([x + dx, topY + 1, z + dz]);
     }
   }
-  leaves.push([x, 6, z]);
-  leaves.push([x + 1, 6, z]);
-  leaves.push([x - 1, 6, z]);
-  leaves.push([x, 6, z + 1]);
-  leaves.push([x, 6, z - 1]);
-  leaves.push([x, 7, z]);
+  leaves.push([x, topY + 2, z]);
+  leaves.push([x + 1, topY + 2, z]);
+  leaves.push([x - 1, topY + 2, z]);
+  leaves.push([x, topY + 2, z + 1]);
+  leaves.push([x, topY + 2, z - 1]);
+  leaves.push([x, topY + 3, z]);
 
   return (
     <group>
       {trunks.map((p, i) => (
-        <Block key={`t${i}`} type="log" position={p} />
+        <Block key={`t${i}`} type={trunkType} position={p} />
       ))}
       {leaves.map((p, i) => (
-        <Block key={`l${i}`} type="leaves" position={p} />
+        <Block key={`l${i}`} type={leafType} position={p} />
       ))}
     </group>
   );
@@ -73,36 +79,45 @@ export function World() {
     [3, 10, -6],
     [6, 9, 4],
     [-7, 11, 5],
-    [0, 10, 1],
+    [0, 10, 0],
   ];
 
   return (
     <group>
-      <mesh
-        position={[0, -0.5, 0]}
-        material={groundMats}
-        receiveShadow
-      >
+      <mesh position={[0, -0.5, 0]} material={groundMats} receiveShadow>
         <boxGeometry args={[WORLD_SIZE, 1, WORLD_SIZE]} />
       </mesh>
+
+      <Path />
 
       <Block type="stone" position={[-5, 0.5, 4]} />
       <Block type="stone" position={[-5.5, 0.5, 4]} />
       <Block type="dirt" position={[4, 0.5, 3]} />
-      <Block type="planks" position={[2, 0.5, 4]} />
-      <Block type="planks" position={[2, 0.5, 5]} />
       <Block type="sand" position={[-2, 0.5, -4]} />
       <Block type="sand" position={[-2, 0.5, -5]} />
 
       {TREE_POSITIONS.map((t, i) => (
-        <Tree key={i} x={t.x} z={t.z} />
+        <Tree key={`oak-${i}`} x={t.x} z={t.z} />
+      ))}
+      {BIRCH_POSITIONS.map((t, i) => (
+        <Tree key={`birch-${i}`} x={t.x} z={t.z} variant="birch" />
       ))}
 
+      <Plants />
+      <BirthdayCorner />
+      <Balloons />
+
       {clouds.map((p, i) => (
-        <mesh key={i} position={p}>
-          <boxGeometry args={[3, 0.4, 1.6]} />
-          <meshStandardMaterial color="#ffffff" flatShading />
-        </mesh>
+        <group key={i} position={p}>
+          <mesh>
+            <boxGeometry args={[3, 0.4, 1.6]} />
+            <meshStandardMaterial color="#ffffff" flatShading />
+          </mesh>
+          <mesh position={[-1.4, 0.1, 0.6]}>
+            <boxGeometry args={[1.6, 0.35, 1.2]} />
+            <meshStandardMaterial color="#ffffff" flatShading />
+          </mesh>
+        </group>
       ))}
 
       <Chest />

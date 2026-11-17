@@ -17,6 +17,7 @@ interface GameState {
   phase: Phase;
   tntPos: [number, number, number] | null;
   invitationShown: boolean;
+  swing: number;
 
   setNearChest: (v: boolean) => void;
   setNearTnt: (v: boolean) => void;
@@ -27,6 +28,7 @@ interface GameState {
   placeTnt: (pos: [number, number, number]) => void;
   igniteTnt: () => void;
   setPhase: (p: Phase) => void;
+  triggerSwing: () => void;
   showInvitation: () => void;
   hideInvitation: () => void;
   reset: () => void;
@@ -42,6 +44,7 @@ export const useGame = create<GameState>((set, get) => ({
   phase: "none",
   tntPos: null,
   invitationShown: false,
+  swing: 0,
 
   setNearChest: (v) => set({ nearChest: v }),
   setNearTnt: (v) => set({ nearTnt: v }),
@@ -85,6 +88,7 @@ export const useGame = create<GameState>((set, get) => ({
   },
 
   setPhase: (p) => set({ phase: p }),
+  triggerSwing: () => set((s) => ({ swing: s.swing + 1 })),
   showInvitation: () => set({ invitationShown: true }),
   hideInvitation: () => set({ invitationShown: false }),
 

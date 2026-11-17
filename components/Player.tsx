@@ -4,13 +4,15 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { PlayerObject } from "skin3d";
 import { interact } from "@/lib/actions";
+import { animateCharacter, animateSwing, type Locomotion } from "@/lib/character/animation";
+import { makeSkinTexture } from "@/lib/character/skin";
 import { resolveMovement } from "@/lib/collision";
 import { CHEST_POS, PLAYER_SPAWN, WORLD_HALF } from "@/lib/constants";
 import { consumeTouchLook, touchInput } from "@/lib/input";
 import { playerState } from "@/lib/playerState";
 import { useGame } from "@/lib/store";
-import { getTextures } from "@/lib/textures";
 
 const keys = {
   forward: false,
@@ -20,11 +22,6 @@ const keys = {
   jump: false,
   sprint: false,
 };
-
-const skin = new THREE.MeshStandardMaterial({ color: "#e0ac69", roughness: 1 });
-const shirt = new THREE.MeshStandardMaterial({ color: "#16a6b0", roughness: 1 });
-const pants = new THREE.MeshStandardMaterial({ color: "#3b4a8f", roughness: 1 });
-const hair = new THREE.MeshStandardMaterial({ color: "#3b2b20", roughness: 1 });
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
@@ -38,17 +35,30 @@ export function Player() {
   const onGround = useRef(true);
   const lastNear = useRef(false);
   const lastNearTnt = useRef(false);
+  const walkPhase = useRef(0);
+  const swingTimer = useRef(0);
+  const lastSwing = useRef(0);
 
   const rootRef = useRef<THREE.Group>(null);
   const bodyRef = useRef<THREE.Group>(null);
-  const leftArmRef = useRef<THREE.Group>(null);
-  const rightArmRef = useRef<THREE.Group>(null);
-  const leftLegRef = useRef<THREE.Group>(null);
-  const rightLegRef = useRef<THREE.Group>(null);
 
-  const headMats = useMemo(() => {
-    const t = getTextures().head;
-    return [skin, skin, hair, skin, skin, new THREE.MeshStandardMaterial({ map: t, roughness: 1 })];
+  const character = useMemo(() => {
+    const player = new PlayerObject({ materialType: "standard" });
+    player.backEquipment = null;
+    player.skin.map = makeSkinTexture();
+    player.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) {
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+      }
+    });
+    // Scale the Minecraft-pixel model (~32u tall) to ~1.85 world units and
+    // align its feet with the player's origin (feet on the ground).
+    const s = 1.85 / 32;
+    player.scale.setScalar(s);
+    player.position.y = 16 * s;
+    player.rotation.y = Math.PI; // model faces +z; make it face forward (-z)
+    return player;
   }, []);
 
   useEffect(() => {
@@ -218,13 +228,23 @@ export function Player() {
     if (rootRef.current) rootRef.current.position.copy(pos.current);
     if (bodyRef.current) bodyRef.current.rotation.y = yaw.current;
 
+    // Character animation
     const moving = onGround.current && Math.hypot(vel.current.x, vel.current.z) > 0.3;
-    const t = state.clock.elapsedTime;
-    const swing = moving ? Math.sin(t * 9) : 0;
-    if (leftArmRef.current) leftArmRef.current.rotation.x = swing * 0.6;
-    if (rightArmRef.current) rightArmRef.current.rotation.x = -swing * 0.6;
-    if (leftLegRef.current) leftLegRef.current.rotation.x = -swing * 0.5;
-    if (rightLegRef.current) rightLegRef.current.rotation.x = swing * 0.5;
+    if (moving) walkPhase.current += dt * (keys.sprint ? 14 : 9);
+    let mode: Locomotion = "idle";
+    if (!onGround.current) mode = "air";
+    else if (moving) mode = keys.sprint ? "run" : "walk";
+    animateCharacter(character, mode, walkPhase.current);
+
+    if (g.swing !== lastSwing.current) {
+      lastSwing.current = g.swing;
+      swingTimer.current = 0.34;
+    }
+    if (swingTimer.current > 0) {
+      swingTimer.current -= dt;
+      const p = 1 - Math.max(0, swingTimer.current) / 0.34;
+      animateSwing(character, p);
+    }
 
     const dist = Math.hypot(
       pos.current.x - CHEST_POS.x,
@@ -248,10 +268,10 @@ export function Player() {
 
     const cp = Math.cos(pitch.current);
     const sp = Math.sin(pitch.current);
-    const camDist = 6.5;
+    const camDist = 5.8;
     const target = new THREE.Vector3(
       pos.current.x + Math.sin(yaw.current) * camDist * cp,
-      pos.current.y + 1.6 + sp * camDist,
+      pos.current.y + 1.5 + sp * camDist,
       pos.current.z + Math.cos(yaw.current) * camDist * cp,
     );
     camera.position.lerp(target, 0.18);
@@ -267,35 +287,7 @@ export function Player() {
   return (
     <group ref={rootRef} position={[PLAYER_SPAWN.x, PLAYER_SPAWN.y, PLAYER_SPAWN.z]}>
       <group ref={bodyRef}>
-        <mesh position={[0, 0.95, 0]} material={shirt} castShadow>
-          <boxGeometry args={[0.5, 0.7, 0.3]} />
-        </mesh>
-
-        <group ref={leftArmRef} position={[-0.35, 1.3, 0]}>
-          <mesh position={[0, -0.325, 0]} material={shirt} castShadow>
-            <boxGeometry args={[0.2, 0.65, 0.25]} />
-          </mesh>
-        </group>
-        <group ref={rightArmRef} position={[0.35, 1.3, 0]}>
-          <mesh position={[0, -0.325, 0]} material={shirt} castShadow>
-            <boxGeometry args={[0.2, 0.65, 0.25]} />
-          </mesh>
-        </group>
-
-        <group ref={leftLegRef} position={[-0.15, 0.9, 0]}>
-          <mesh position={[0, -0.3, 0]} material={pants} castShadow>
-            <boxGeometry args={[0.25, 0.6, 0.25]} />
-          </mesh>
-        </group>
-        <group ref={rightLegRef} position={[0.15, 0.9, 0]}>
-          <mesh position={[0, -0.3, 0]} material={pants} castShadow>
-            <boxGeometry args={[0.25, 0.6, 0.25]} />
-          </mesh>
-        </group>
-
-        <mesh position={[0, 1.65, 0]} material={headMats} castShadow>
-          <boxGeometry args={[0.5, 0.5, 0.5]} />
-        </mesh>
+        <primitive object={character} />
       </group>
     </group>
   );

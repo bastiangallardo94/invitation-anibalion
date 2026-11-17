@@ -12,6 +12,7 @@ export function interact() {
 
   if (g.nearChest && g.chestItems.length > 0) {
     g.setChestOpen(true);
+    g.triggerSwing();
     if (typeof document !== "undefined") document.exitPointerLock?.();
     return;
   }
@@ -24,11 +25,13 @@ export function interact() {
     const bx = clamp(Math.round(p.x + fx * 1.8));
     const bz = clamp(Math.round(p.z + fz * 1.8));
     g.placeTnt([bx, 0, bz]);
+    g.triggerSwing();
     return;
   }
 
   if (g.phase === "placed" && g.nearTnt && g.inventory.lighter > 0) {
     g.igniteTnt();
+    g.triggerSwing();
   }
 }
 

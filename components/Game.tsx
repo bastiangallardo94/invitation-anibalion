@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Player } from "./Player";
+import { Sky } from "./Sky";
 import { Tnt } from "./Tnt";
 import { World } from "./World";
 import { HUD } from "./ui/HUD";
@@ -35,12 +36,13 @@ export default function Game() {
         className="touch-none"
       >
         <color attach="background" args={["#87ceeb"]} />
-        <fog attach="fog" args={["#bfe3ff", 20, 70]} />
-        <ambientLight intensity={0.75} />
-        <hemisphereLight args={["#dff1ff", "#7a9a5a", 0.4]} />
+        <fog attach="fog" args={["#bfe3ff", 22, 75]} />
+        <Sky />
+        <ambientLight intensity={0.7} />
+        <hemisphereLight args={["#dff1ff", "#7a9a5a", 0.5]} />
         <directionalLight
           position={[12, 22, 8]}
-          intensity={1.5}
+          intensity={1.6}
           castShadow
           shadow-mapSize={[2048, 2048]}
           shadow-camera-left={-20}

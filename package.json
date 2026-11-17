@@ -14,6 +14,7 @@
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "skin3d": "^0.2.0",
     "three": "^0.187.0",
     "zustand": "^5.1.0"
   },
@@ -26,5 +27,10 @@
     "eslint-config-next": "16.4.6",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "skin3d": {
+      "three": "$three"
+    }
   }
 }
