@@ -6,21 +6,9 @@ import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import { Tree } from "./Tree";
 import { getBlockMaterials, getTextures } from "@/lib/textures";
-import { getCreatureSprite, type CreatureKind } from "@/lib/sprites";
+import { getCreatureSprite, CREATURE_KINDS, type CreatureKind } from "@/lib/sprites";
 
 const EXT = 70;
-
-const ALL_KINDS: CreatureKind[] = [
-  "zombie",
-  "skeleton",
-  "cow",
-  "pig",
-  "sheep",
-  "chicken",
-  "villager",
-  "creeper",
-  "slime",
-];
 
 interface CreatureSpec {
   kind: CreatureKind;
@@ -131,7 +119,7 @@ export function Diorama() {
 
   const creatureMats = useMemo(() => {
     const out = {} as Record<CreatureKind, { mat: THREE.Material; aspect: number }>;
-    for (const k of ALL_KINDS) {
+    for (const k of CREATURE_KINDS) {
       const s = getCreatureSprite(k);
       out[k] = {
         mat: new THREE.MeshStandardMaterial({

@@ -12,9 +12,21 @@ export type CreatureKind =
   | "slime";
 
 export interface Sprite {
-  texture: THREE.CanvasTexture;
+  texture: THREE.Texture;
   aspect: number;
 }
+
+export const CREATURE_KINDS: CreatureKind[] = [
+  "zombie",
+  "skeleton",
+  "cow",
+  "pig",
+  "sheep",
+  "chicken",
+  "villager",
+  "creeper",
+  "slime",
+];
 
 type Rect = (x: number, y: number, w: number, h: number, color: string) => void;
 
@@ -163,39 +175,53 @@ function drawSlime(r: Rect) {
 }
 
 const cache: Partial<Record<CreatureKind, Sprite>> = {};
+let loadPromise: Promise<void> | null = null;
 
-export function getCreatureSprite(kind: CreatureKind): Sprite {
-  if (cache[kind]) return cache[kind]!;
-  let sprite: Sprite;
+function makeProcedural(kind: CreatureKind): Sprite {
   switch (kind) {
     case "zombie":
-      sprite = makeSprite(20, 30, drawZombie);
-      break;
+      return makeSprite(20, 30, drawZombie);
     case "skeleton":
-      sprite = makeSprite(20, 30, drawSkeleton);
-      break;
+      return makeSprite(20, 30, drawSkeleton);
     case "cow":
-      sprite = makeSprite(22, 14, drawCow);
-      break;
+      return makeSprite(22, 14, drawCow);
     case "pig":
-      sprite = makeSprite(18, 12, drawPig);
-      break;
+      return makeSprite(18, 12, drawPig);
     case "sheep":
-      sprite = makeSprite(18, 12, drawSheep);
-      break;
+      return makeSprite(18, 12, drawSheep);
     case "chicken":
-      sprite = makeSprite(12, 10, drawChicken);
-      break;
+      return makeSprite(12, 10, drawChicken);
     case "villager":
-      sprite = makeSprite(20, 30, drawVillager);
-      break;
+      return makeSprite(20, 30, drawVillager);
     case "creeper":
-      sprite = makeSprite(16, 30, drawCreeper);
-      break;
+      return makeSprite(16, 30, drawCreeper);
     case "slime":
-      sprite = makeSprite(16, 14, drawSlime);
-      break;
+      return makeSprite(16, 14, drawSlime);
   }
-  cache[kind] = sprite;
-  return sprite;
+}
+
+/** Loads mob sprite PNGs (public/textures/mobs) with a procedural fallback. */
+export function loadMobSprites(): Promise<void> {
+  if (loadPromise) return loadPromise;
+  const loader = new THREE.TextureLoader();
+  loadPromise = Promise.all(
+    CREATURE_KINDS.map(async (kind) => {
+      try {
+        const tex = await loader.loadAsync(`/textures/mobs/${kind}.png`);
+        tex.magFilter = THREE.NearestFilter;
+        tex.minFilter = THREE.NearestFilter;
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.needsUpdate = true;
+        const img = tex.image as { width: number; height: number };
+        cache[kind] = { texture: tex, aspect: img.width / img.height };
+      } catch {
+        cache[kind] = makeProcedural(kind);
+      }
+    }),
+  ).then(() => undefined);
+  return loadPromise;
+}
+
+export function getCreatureSprite(kind: CreatureKind): Sprite {
+  return cache[kind] ?? makeProcedural(kind);
 }

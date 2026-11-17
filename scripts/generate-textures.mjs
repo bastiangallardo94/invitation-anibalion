@@ -353,6 +353,160 @@ function skin() {
   return img;
 }
 
+// ---------- mobs ----------
+function mobZombie() {
+  const img = newImg(20, 30);
+  const r = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  r(6, 21, 3, 9, "#3b4a8f");
+  r(11, 21, 3, 9, "#3b4a8f");
+  r(6, 29, 3, 1, "#222222");
+  r(11, 29, 3, 1, "#222222");
+  r(5, 10, 10, 11, "#2f8f8f");
+  r(9, 12, 2, 7, "#256b6b");
+  r(0, 12, 5, 3, "#5b8a3c");
+  r(15, 12, 5, 3, "#5b8a3c");
+  r(0, 15, 4, 3, "#4e7832");
+  r(16, 15, 4, 3, "#4e7832");
+  r(6, 1, 8, 8, "#5b8a3c");
+  r(6, 1, 8, 2, "#3f6b2a");
+  r(8, 4, 1, 2, "#1a1a1a");
+  r(11, 4, 1, 2, "#1a1a1a");
+  r(8, 7, 4, 1, "#1a1a1a");
+  return img;
+}
+
+function mobSkeleton() {
+  const img = newImg(20, 30);
+  const r = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  r(7, 21, 2, 9, "#d8d8d8");
+  r(11, 21, 2, 9, "#d8d8d8");
+  r(6, 10, 8, 11, "#d8d8d8");
+  r(7, 12, 6, 1, "#a8a8a8");
+  r(7, 15, 6, 1, "#a8a8a8");
+  r(7, 18, 6, 1, "#a8a8a8");
+  r(1, 12, 5, 2, "#d8d8d8");
+  r(14, 12, 5, 2, "#d8d8d8");
+  r(6, 1, 8, 8, "#e8e8e8");
+  r(8, 4, 2, 2, "#1a1a1a");
+  r(11, 4, 2, 2, "#1a1a1a");
+  r(9, 7, 2, 1, "#1a1a1a");
+  return img;
+}
+
+function mobCow() {
+  const img = newImg(22, 14);
+  const r = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  r(3, 4, 16, 7, "#e8e8e8");
+  r(6, 5, 3, 2, "#2b2b2b");
+  r(12, 6, 4, 2, "#2b2b2b");
+  r(15, 4, 2, 2, "#2b2b2b");
+  r(18, 2, 4, 7, "#e8e8e8");
+  r(18, 3, 4, 1, "#d8d8d8");
+  r(19, 5, 3, 2, "#f0a0a0");
+  r(19, 4, 1, 1, "#1a1a1a");
+  r(18, 1, 2, 1, "#d8d8d8");
+  r(21, 1, 1, 2, "#d8d8d8");
+  r(5, 10, 2, 3, "#8a8a8a");
+  r(9, 10, 2, 3, "#8a8a8a");
+  r(13, 10, 2, 3, "#8a8a8a");
+  r(16, 10, 2, 3, "#8a8a8a");
+  r(10, 11, 4, 1, "#f0a0a0");
+  return img;
+}
+
+function mobPig() {
+  const img = newImg(18, 12);
+  const r = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  r(3, 5, 12, 5, "#f0a0a0");
+  r(6, 6, 3, 2, "#e88f8f");
+  r(14, 3, 4, 7, "#f0a0a0");
+  r(17, 5, 1, 2, "#d97f7f");
+  r(15, 4, 1, 1, "#1a1a1a");
+  r(15, 2, 2, 1, "#d97f7f");
+  r(4, 9, 2, 2, "#d97f7f");
+  r(7, 9, 2, 2, "#d97f7f");
+  r(11, 9, 2, 2, "#d97f7f");
+  r(13, 9, 2, 2, "#d97f7f");
+  return img;
+}
+
+function mobSheep() {
+  const img = newImg(18, 12);
+  const r = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  r(3, 4, 13, 6, "#f4f4f4");
+  r(5, 5, 2, 2, "#e0e0e0");
+  r(9, 6, 2, 2, "#e0e0e0");
+  r(14, 3, 4, 7, "#f4f4f4");
+  r(15, 5, 2, 3, "#d8d8d8");
+  r(15, 5, 1, 1, "#1a1a1a");
+  r(4, 10, 2, 2, "#4a4a4a");
+  r(7, 10, 2, 2, "#4a4a4a");
+  r(11, 10, 2, 2, "#4a4a4a");
+  r(14, 10, 2, 2, "#4a4a4a");
+  return img;
+}
+
+function mobChicken() {
+  const img = newImg(12, 10);
+  const r = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  r(3, 4, 6, 5, "#f4f4f4");
+  r(4, 5, 3, 2, "#e0e0e0");
+  r(8, 2, 3, 4, "#f4f4f4");
+  r(10, 4, 1, 1, "#f2c94c");
+  r(9, 1, 2, 1, "#d64545");
+  r(9, 3, 1, 1, "#1a1a1a");
+  r(4, 9, 1, 1, "#f2c94c");
+  r(6, 9, 1, 1, "#f2c94c");
+  return img;
+}
+
+function mobVillager() {
+  const img = newImg(20, 30);
+  const r = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  r(6, 27, 3, 3, "#5b3a1a");
+  r(11, 27, 3, 3, "#5b3a1a");
+  r(4, 9, 12, 18, "#8a5a3a");
+  r(9, 12, 2, 12, "#6b4423");
+  r(4, 13, 12, 3, "#7a4a2a");
+  r(5, 1, 10, 9, "#c8a07a");
+  r(5, 1, 10, 2, "#3b2b20");
+  r(6, 3, 8, 1, "#3b2b20");
+  r(9, 4, 2, 4, "#a87f5a");
+  r(7, 4, 1, 1, "#1a1a1a");
+  r(12, 4, 1, 1, "#1a1a1a");
+  return img;
+}
+
+function mobCreeper() {
+  const img = newImg(16, 30);
+  const r = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  r(3, 22, 4, 8, "#4e8f3f");
+  r(9, 22, 4, 8, "#4e8f3f");
+  r(3, 8, 10, 15, "#5aa64a");
+  r(5, 10, 2, 2, "#4e8f3f");
+  r(9, 14, 2, 2, "#4e8f3f");
+  r(4, 18, 2, 2, "#4e8f3f");
+  r(10, 9, 2, 2, "#4e8f3f");
+  r(4, 10, 3, 3, "#151515");
+  r(9, 10, 3, 3, "#151515");
+  r(7, 13, 2, 5, "#151515");
+  r(6, 15, 1, 3, "#151515");
+  r(9, 15, 1, 3, "#151515");
+  return img;
+}
+
+function mobSlime() {
+  const img = newImg(16, 14);
+  const r = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  r(2, 4, 12, 9, "#6fcf6f");
+  r(2, 4, 12, 2, "#8fe08f");
+  r(5, 7, 2, 2, "#1a3a1a");
+  r(9, 7, 2, 2, "#1a3a1a");
+  r(6, 10, 4, 1, "#1a3a1a");
+  r(2, 12, 12, 1, "#5ab85a");
+  return img;
+}
+
 // ---------- write ----------
 const blocks = {
   "grass_top.png": grassTop(),
@@ -379,4 +533,24 @@ const blocks = {
 
 for (const [name, img] of Object.entries(blocks)) save(img, join(BLOCKS, name));
 save(skin(), join(ROOT, "public/textures/skin.png"));
-console.log("Generated", Object.keys(blocks).length + 1, "textures in public/textures/");
+
+const MOBS = join(ROOT, "public/textures/mobs");
+mkdirSync(MOBS, { recursive: true });
+const mobs = {
+  "zombie.png": mobZombie(),
+  "skeleton.png": mobSkeleton(),
+  "cow.png": mobCow(),
+  "pig.png": mobPig(),
+  "sheep.png": mobSheep(),
+  "chicken.png": mobChicken(),
+  "villager.png": mobVillager(),
+  "creeper.png": mobCreeper(),
+  "slime.png": mobSlime(),
+};
+for (const [name, img] of Object.entries(mobs)) save(img, join(MOBS, name));
+
+console.log(
+  "Generated",
+  Object.keys(blocks).length + Object.keys(mobs).length + 1,
+  "textures in public/textures/",
+);

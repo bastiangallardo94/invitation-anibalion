@@ -8,6 +8,7 @@ import { Tnt } from "./Tnt";
 import { World } from "./World";
 import { HUD } from "./ui/HUD";
 import { Hotbar } from "./ui/Hotbar";
+import { MusicToggle } from "./ui/MusicToggle";
 import { ChestModal } from "./ui/ChestModal";
 import { InvitationModal } from "./ui/InvitationModal";
 import { TouchControls } from "./ui/TouchControls";
@@ -15,12 +16,13 @@ import { downloadImage } from "@/lib/download";
 import { useGame } from "@/lib/store";
 import { useIsTouch } from "@/lib/useIsTouch";
 import { loadAllTextures } from "@/lib/textures";
+import { loadMobSprites } from "@/lib/sprites";
 
 function TextureGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     let alive = true;
-    loadAllTextures()
+    Promise.all([loadAllTextures(), loadMobSprites()])
       .catch((err) => console.error("No se pudieron cargar las texturas", err))
       .finally(() => {
         if (alive) setReady(true);
@@ -79,6 +81,7 @@ export default function Game() {
       </Canvas>
 
       <HUD />
+      <MusicToggle />
       <Hotbar />
       {isTouch && <TouchControls />}
       {chestOpen && <ChestModal />}
