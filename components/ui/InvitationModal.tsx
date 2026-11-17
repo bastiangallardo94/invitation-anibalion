@@ -22,19 +22,19 @@ export function InvitationModal() {
           La descarga comenzó automáticamente. Si no, usa el botón.
         </p>
 
-        <div className="w-full max-w-sm overflow-hidden rounded border-4 border-white/20 shadow-lg">
+        <div className="w-full max-w-sm overflow-auto rounded border-4 border-white/20 shadow-lg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/invitation-default.svg"
-            alt="Invitación de cumpleaños"
-            className="h-auto w-full"
+            src="/invitacion-anibal.jpeg"
+            alt="Invitación de cumpleaños de Aníbal"
+            className="mx-auto max-h-[60vh] w-auto"
           />
         </div>
 
         <div className="mt-4 flex w-full gap-2">
           <a
-            href="/invitation-default.svg"
-            download="invitacion-cumpleanos.svg"
+            href="/invitacion-anibal.jpeg"
+            download="invitacion-anibal.jpeg"
             className="flex-1 rounded border-2 border-white bg-[#7ab648] px-4 py-2.5 text-center font-bold text-white shadow transition hover:bg-[#8cc95a]"
           >
             Descargar

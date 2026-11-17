@@ -24,7 +24,7 @@ export default function Game() {
   useEffect(() => {
     if (invitationShown && !downloaded.current) {
       downloaded.current = true;
-      downloadImage("/invitation-default.svg", "invitacion-cumpleanos.svg");
+      downloadImage("/invitacion-anibal.jpeg", "invitacion-anibal.jpeg");
     }
   }, [invitationShown]);
 
