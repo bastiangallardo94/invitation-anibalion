@@ -36,7 +36,7 @@ export default function Game() {
         className="touch-none"
       >
         <color attach="background" args={["#87ceeb"]} />
-        <fog attach="fog" args={["#bfe3ff", 22, 75]} />
+        <fog attach="fog" args={["#cfe9ff", 14, 60]} />
         <Sky />
         <ambientLight intensity={0.7} />
         <hemisphereLight args={["#dff1ff", "#7a9a5a", 0.5]} />

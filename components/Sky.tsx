@@ -11,7 +11,7 @@ export function Sky() {
         depthWrite: false,
         uniforms: {
           topColor: { value: new THREE.Color("#3f8fd6") },
-          bottomColor: { value: new THREE.Color("#d6efff") },
+          bottomColor: { value: new THREE.Color("#cfe9ff") },
           offset: { value: 12 },
           exponent: { value: 0.7 },
         },
