@@ -47,8 +47,10 @@ export function MusicToggle() {
       ambientMusic.setMuted(true);
     }
 
-    const onFirstInteraction = () => {
+    const onFirstInteraction = (e: Event) => {
       if (startedRef.current) return;
+      const target = e.target;
+      if (target instanceof Element && target.closest("[data-music-toggle]")) return;
       startedRef.current = true;
       void ambientMusic.start();
     };
@@ -77,6 +79,7 @@ export function MusicToggle() {
   return (
     <button
       type="button"
+      data-music-toggle
       onClick={toggle}
       aria-label={muted ? "Activar música" : "Silenciar música"}
       title={muted ? "Activar música" : "Silenciar música"}

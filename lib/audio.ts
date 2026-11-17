@@ -37,30 +37,44 @@ class AmbientMusic {
     this.started = true;
 
     const Ctx = window.AudioContext ?? (window as WindowWithWebkit).webkitAudioContext;
-    if (Ctx) {
+    if (Ctx && !this.ctx) {
       this.ctx = new Ctx();
-      try {
-        await this.ctx.resume();
-      } catch {
-        /* ignore */
-      }
+      this.ctx.resume().catch(() => {});
     }
 
-    // Use a user-provided track when configured.
     if (CUSTOM_TRACK) {
-      try {
-        const el = new Audio(CUSTOM_TRACK);
-        el.loop = true;
-        el.volume = this.muted ? 0 : 0.4;
-        await el.play();
-        this.audioEl = el;
-        return;
-      } catch {
-        /* fall through to generated music */
+      // Call play() synchronously inside the gesture so mobile browsers allow it.
+      const el = new Audio(CUSTOM_TRACK);
+      el.loop = true;
+      el.volume = this.muted ? 0 : 0.5;
+      el.preload = "auto";
+      this.audioEl = el;
+      const p = el.play();
+      if (p && typeof p.catch === "function") {
+        p.catch(() => {
+          this.audioEl = null;
+          this.startProcedural();
+        });
       }
+      return;
     }
 
     this.startProcedural();
+  }
+
+  debugState() {
+    return {
+      started: this.started,
+      muted: this.muted,
+      ctxState: this.ctx?.state ?? null,
+      hasAudio: !!this.audioEl,
+      paused: this.audioEl?.paused ?? null,
+      currentTime: this.audioEl?.currentTime ?? null,
+      readyState: this.audioEl?.readyState ?? null,
+      error: this.audioEl?.error ? this.audioEl.error.code : null,
+      volume: this.audioEl?.volume ?? null,
+      procedural: !!this.master,
+    };
   }
 
   private resume() {
@@ -157,7 +171,7 @@ class AmbientMusic {
 
   setMuted(muted: boolean) {
     this.muted = muted;
-    if (this.audioEl) this.audioEl.volume = muted ? 0 : 0.4;
+    if (this.audioEl) this.audioEl.volume = muted ? 0 : 0.5;
     if (this.master && this.ctx) {
       this.master.gain.setTargetAtTime(
         muted ? 0 : this.baseVolume,
@@ -176,3 +190,7 @@ class AmbientMusic {
 }
 
 export const ambientMusic = new AmbientMusic();
+
+if (typeof window !== "undefined") {
+  (window as unknown as { __ambientMusic?: AmbientMusic }).__ambientMusic = ambientMusic;
+}
