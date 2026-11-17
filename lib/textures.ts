@@ -22,6 +22,9 @@ export interface Textures {
   cakeTop: THREE.Texture;
   cakeSide: THREE.Texture;
   skin: THREE.Texture;
+  zombieSkin: THREE.Texture;
+  skeletonSkin: THREE.Texture;
+  villagerSkin: THREE.Texture;
 }
 
 export type BlockMaterials = Record<string, THREE.MeshStandardMaterial[]>;
@@ -48,6 +51,9 @@ const URLS: Record<keyof Textures, string> = {
   cakeTop: "/textures/blocks/cake_top.png",
   cakeSide: "/textures/blocks/cake_side.png",
   skin: "/textures/skin.png",
+  zombieSkin: "/textures/mobs/skin_zombie.png",
+  skeletonSkin: "/textures/mobs/skin_skeleton.png",
+  villagerSkin: "/textures/mobs/skin_villager.png",
 };
 
 let texCache: Textures | null = null;

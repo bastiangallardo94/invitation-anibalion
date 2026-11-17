@@ -353,6 +353,108 @@ function skin() {
   return img;
 }
 
+function skinZombie() {
+  const img = newImg(64, 64);
+  const F = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  const SKIN = "#5b8a3c";
+  const SKIN_D = "#4e7832";
+  const HAIR = "#3f6b2a";
+  const SHIRT = "#2f8f8f";
+  const SHIRT_D = "#256b6b";
+  const PANTS = "#3b4a8f";
+
+  F(0, 0, 32, 16, SKIN);
+  F(8, 0, 8, 8, HAIR);
+  F(24, 8, 8, 8, HAIR);
+  F(0, 8, 8, 4, HAIR);
+  F(16, 8, 8, 4, HAIR);
+  F(8, 8, 8, 2, SKIN_D);
+  F(10, 11, 1, 2, "#1a1a1a");
+  F(14, 11, 1, 2, "#1a1a1a");
+  F(11, 14, 3, 1, "#1a1a1a");
+
+  F(16, 16, 24, 16, SHIRT);
+  F(20, 20, 8, 4, SHIRT_D);
+  F(20, 30, 8, 2, SHIRT_D);
+
+  F(40, 16, 16, 16, SHIRT);
+  F(48, 16, 4, 4, SKIN);
+  F(40, 29, 16, 3, SKIN);
+  F(32, 48, 16, 16, SHIRT);
+  F(40, 48, 4, 4, SKIN);
+  F(32, 61, 16, 3, SKIN);
+
+  F(0, 16, 16, 16, PANTS);
+  F(8, 16, 4, 4, "#2b2b2b");
+  F(0, 29, 16, 3, "#2b2b2b");
+  F(16, 48, 16, 16, PANTS);
+  F(24, 48, 4, 4, "#2b2b2b");
+  F(16, 61, 16, 3, "#2b2b2b");
+  return img;
+}
+
+function skinSkeleton() {
+  const img = newImg(64, 64);
+  const F = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  const BONE = "#d8d8d8";
+  const BONE_D = "#a8a8a8";
+  const BONE_L = "#eeeeee";
+
+  F(0, 0, 32, 16, BONE);
+  F(8, 8, 8, 8, BONE_L);
+  F(10, 11, 2, 2, "#1a1a1a");
+  F(13, 11, 2, 2, "#1a1a1a");
+  F(11, 14, 3, 1, BONE_D);
+
+  F(16, 16, 24, 16, BONE);
+  F(23, 20, 2, 12, BONE_D);
+  F(20, 22, 8, 1, BONE_D);
+  F(20, 25, 8, 1, BONE_D);
+  F(20, 28, 8, 1, BONE_D);
+
+  F(40, 16, 16, 16, BONE);
+  F(32, 48, 16, 16, BONE);
+
+  F(0, 16, 16, 16, BONE);
+  F(16, 48, 16, 16, BONE);
+  return img;
+}
+
+function skinVillager() {
+  const img = newImg(64, 64);
+  const F = (x, y, w, h, c) => rect(img, x, y, w, h, hex(c));
+  const SKIN = "#c8a07a";
+  const HAIR = "#3b2b20";
+  const ROBE = "#8a5a3a";
+  const ROBE_D = "#6b4423";
+  const NOSE = "#a87f5a";
+
+  F(0, 0, 32, 16, SKIN);
+  F(8, 0, 8, 8, HAIR);
+  F(24, 8, 8, 8, HAIR);
+  F(0, 8, 8, 5, HAIR);
+  F(16, 8, 8, 5, HAIR);
+  F(8, 8, 8, 2, HAIR);
+  F(10, 9, 2, 5, NOSE);
+  F(8, 11, 1, 1, "#1a1a1a");
+  F(13, 11, 1, 1, "#1a1a1a");
+
+  F(16, 16, 24, 16, ROBE);
+  F(20, 20, 8, 12, ROBE_D);
+  F(20, 20, 8, 2, "#5e3c1a");
+
+  F(40, 16, 16, 16, ROBE);
+  F(48, 16, 4, 4, SKIN);
+  F(40, 29, 16, 3, SKIN);
+  F(32, 48, 16, 16, ROBE);
+  F(40, 48, 4, 4, SKIN);
+  F(32, 61, 16, 3, SKIN);
+
+  F(0, 16, 16, 16, "#5b3a1a");
+  F(16, 48, 16, 16, "#5b3a1a");
+  return img;
+}
+
 // ---------- mobs ----------
 function mobZombie() {
   const img = newImg(20, 30);
@@ -531,7 +633,28 @@ const blocks = {
   "cake_side.png": cakeSide(),
 };
 
-for (const [name, img] of Object.entries(blocks)) save(img, join(BLOCKS, name));
+// Texturas que vienen del pack CC0 (OpenGameArt) y no deben regenerarse.
+const PACK_PROVIDED = new Set([
+  "grass_top.png",
+  "grass_side.png",
+  "dirt.png",
+  "planks.png",
+  "log_side.png",
+  "log_top.png",
+  "leaves.png",
+  "gravel.png",
+  "stone.png",
+  "flower_red.png",
+  "flower_yellow.png",
+  "tall_grass.png",
+]);
+
+let blockCount = 0;
+for (const [name, img] of Object.entries(blocks)) {
+  if (PACK_PROVIDED.has(name)) continue;
+  save(img, join(BLOCKS, name));
+  blockCount++;
+}
 save(skin(), join(ROOT, "public/textures/skin.png"));
 
 const MOBS = join(ROOT, "public/textures/mobs");
@@ -546,11 +669,14 @@ const mobs = {
   "villager.png": mobVillager(),
   "creeper.png": mobCreeper(),
   "slime.png": mobSlime(),
+  "skin_zombie.png": skinZombie(),
+  "skin_skeleton.png": skinSkeleton(),
+  "skin_villager.png": skinVillager(),
 };
 for (const [name, img] of Object.entries(mobs)) save(img, join(MOBS, name));
 
 console.log(
   "Generated",
-  Object.keys(blocks).length + Object.keys(mobs).length + 1,
-  "textures in public/textures/",
+  blockCount + Object.keys(mobs).length + 1,
+  "textures (pack CC0 textures untouched)",
 );

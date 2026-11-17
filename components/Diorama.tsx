@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
+import { HumanoidMob } from "./HumanoidMob";
 import { Tree } from "./Tree";
 import { getBlockMaterials, getTextures } from "@/lib/textures";
 import { getCreatureSprite, CREATURE_KINDS, type CreatureKind } from "@/lib/sprites";
@@ -21,25 +22,24 @@ interface CreatureSpec {
 }
 
 const CREATURES: CreatureSpec[] = [
-  // grupo de "enemigos" delante a la izquierda
-  { kind: "zombie", x: -12, z: -7, h: 1.9, radius: 1.2, speed: 0.5, phase: 0.3 },
-  { kind: "zombie", x: -13.5, z: -9, h: 1.9, radius: 1.0, speed: 0.45, phase: 2.1 },
-  { kind: "skeleton", x: -15, z: -11, h: 1.9, radius: 1.4, speed: 0.6, phase: 1.2 },
-  { kind: "creeper", x: -11, z: -12, h: 1.6, radius: 1.1, speed: 0.4, phase: 3.4 },
-  // animales delante a la derecha
-  { kind: "cow", x: 13, z: -8, h: 1.3, radius: 1.8, speed: 0.35, phase: 0.8 },
-  { kind: "pig", x: 11, z: -12, h: 1.0, radius: 1.5, speed: 0.5, phase: 1.7 },
-  { kind: "sheep", x: 16, z: -2, h: 1.15, radius: 1.6, speed: 0.4, phase: 2.6 },
-  { kind: "chicken", x: 10.5, z: 6, h: 0.8, radius: 0.9, speed: 0.8, phase: 0.2 },
-  { kind: "sheep", x: 18, z: -12, h: 1.15, radius: 1.7, speed: 0.38, phase: 4.1 },
-  // resto alrededor
-  { kind: "zombie", x: 14, z: 12, h: 1.9, radius: 1.3, speed: 0.5, phase: 1.9 },
-  { kind: "skeleton", x: -11, z: 13, h: 1.9, radius: 1.2, speed: 0.55, phase: 0.9 },
-  { kind: "villager", x: -16, z: 6, h: 1.85, radius: 1.0, speed: 0.3, phase: 2.2 },
-  { kind: "cow", x: -10, z: 15, h: 1.3, radius: 1.6, speed: 0.34, phase: 3.0 },
-  { kind: "creeper", x: 17, z: 8, h: 1.6, radius: 1.0, speed: 0.42, phase: 1.1 },
-  { kind: "slime", x: 9, z: 14, h: 0.95, radius: 1.4, speed: 0.7, phase: 2.8 },
-  { kind: "pig", x: -18, z: -4, h: 1.0, radius: 1.4, speed: 0.45, phase: 4.4 },
+  // Zombies y esqueletos 3D cerca del jugador (dentro de la isla)
+  { kind: "zombie", x: -4, z: 0, h: 1.85, radius: 1.2, speed: 0.5, phase: 0.3 },
+  { kind: "zombie", x: 4, z: -2, h: 1.85, radius: 1.2, speed: 0.45, phase: 2.1 },
+  { kind: "zombie", x: -4, z: -4, h: 1.85, radius: 1.1, speed: 0.5, phase: 1.9 },
+  { kind: "skeleton", x: 5, z: -4, h: 1.85, radius: 1.2, speed: 0.6, phase: 1.2 },
+  { kind: "skeleton", x: -3, z: -6, h: 1.85, radius: 1.1, speed: 0.55, phase: 0.9 },
+  { kind: "skeleton", x: 3, z: 5, h: 1.85, radius: 1.0, speed: 0.58, phase: 2.6 },
+  // Aldeano 3D
+  { kind: "villager", x: -6, z: 4, h: 1.8, radius: 0.8, speed: 0.3, phase: 0.8 },
+  // Animales (billboards, al fondo)
+  { kind: "cow", x: 12, z: -6, h: 1.5, radius: 1.5, speed: 0.35, phase: 0.8 },
+  { kind: "pig", x: 11, z: 6, h: 1.2, radius: 1.3, speed: 0.5, phase: 1.7 },
+  { kind: "sheep", x: 14, z: 2, h: 1.3, radius: 1.4, speed: 0.4, phase: 2.6 },
+  { kind: "chicken", x: 10, z: 9, h: 0.9, radius: 0.8, speed: 0.8, phase: 0.2 },
+  { kind: "cow", x: -12, z: 8, h: 1.5, radius: 1.4, speed: 0.34, phase: 3.0 },
+  { kind: "sheep", x: -13, z: -3, h: 1.3, radius: 1.3, speed: 0.38, phase: 4.1 },
+  { kind: "creeper", x: 11, z: 11, h: 1.5, radius: 1.0, speed: 0.42, phase: 1.1 },
+  { kind: "slime", x: -10, z: 6, h: 0.9, radius: 1.1, speed: 0.7, phase: 2.8 },
 ];
 
 const HILLS: { x: number; z: number; s: number }[] = [
@@ -58,6 +58,8 @@ const FAR_TREES: { x: number; z: number; variant: "oak" | "birch" }[] = [
   { x: 21, z: 13, variant: "birch" },
   { x: 6, z: -23, variant: "oak" },
 ];
+
+const HUMANOIDS = new Set<CreatureKind>(["zombie", "skeleton", "villager"]);
 
 function Hill({ x, z, s }: { x: number; z: number; s: number }) {
   const mats = getBlockMaterials();
@@ -93,11 +95,11 @@ function AnimatedCreature({
     const x = c.x + Math.sin(t * c.speed + c.phase) * c.radius;
     const z = c.z + Math.cos(t * c.speed * 0.7 + c.phase * 1.3) * c.radius;
     const step = Math.abs(Math.sin(t * 5 + c.phase)) * 0.06;
-    group.current.position.set(x, c.h / 2 - 0.02 + step, z);
+    group.current.position.set(x, c.h / 2 + step, z);
   });
 
   return (
-    <group ref={group} position={[c.x, c.h / 2 - 0.02, c.z]}>
+    <group ref={group} position={[c.x, c.h / 2, c.z]}>
       <Billboard>
         <mesh material={material}>
           <planeGeometry args={[c.h * aspect, c.h]} />
@@ -135,9 +137,13 @@ export function Diorama() {
     return out;
   }, []);
 
+  const skins = useMemo(() => {
+    const t = getTextures();
+    return { zombie: t.zombieSkin, skeleton: t.skeletonSkin, villager: t.villagerSkin };
+  }, []);
+
   return (
     <group>
-      {/* Extended ground so the sides of the island never look empty. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} material={grassMat} receiveShadow>
         <planeGeometry args={[EXT * 2, EXT * 2]} />
       </mesh>
@@ -151,6 +157,18 @@ export function Diorama() {
       ))}
 
       {CREATURES.map((c, i) => {
+        if (HUMANOIDS.has(c.kind)) {
+          const skin = skins[c.kind as "zombie" | "skeleton" | "villager"];
+          return (
+            <HumanoidMob
+              key={`humanoid-${i}`}
+              wander={{ x: c.x, z: c.z, radius: c.radius, speed: c.speed, phase: c.phase }}
+              skin={skin}
+              height={c.h}
+              armsForward={c.kind === "zombie"}
+            />
+          );
+        }
         const m = creatureMats[c.kind];
         return <AnimatedCreature key={`mob-${i}`} c={c} material={m.mat} aspect={m.aspect} />;
       })}
