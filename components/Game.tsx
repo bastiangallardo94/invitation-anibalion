@@ -16,13 +16,12 @@ import { downloadImage } from "@/lib/download";
 import { useGame } from "@/lib/store";
 import { useIsTouch } from "@/lib/useIsTouch";
 import { loadAllTextures } from "@/lib/textures";
-import { loadMobSprites } from "@/lib/sprites";
 
 function TextureGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     let alive = true;
-    Promise.all([loadAllTextures(), loadMobSprites()])
+    loadAllTextures()
       .catch((err) => console.error("No se pudieron cargar las texturas", err))
       .finally(() => {
         if (alive) setReady(true);

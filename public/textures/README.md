@@ -11,9 +11,11 @@ por el de tu texture pack favorito manteniendo el mismo nombre de archivo.
     `gravel.png`, `birch_side.png`, `birch_top.png`, `birch_leaves.png`,
     `tnt.png`, `flower_red.png`, `flower_yellow.png`, `tall_grass.png`,
     `cake_top.png`, `cake_side.png`
-- `public/textures/mobs/*.png` — criaturas (sprites frontales, fondo transparente).
-  - `zombie.png`, `skeleton.png`, `cow.png`, `pig.png`, `sheep.png`,
-    `chicken.png`, `villager.png`, `creeper.png`, `slime.png`
+- `public/textures/mobs/skin_zombie.png`, `skin_skeleton.png`, `skin_villager.png`
+  — skins 64×64 de los mobs humanoides 3D (zombie, esqueleto, aldeano).
+- Los animales 3D (vaca, cerdo, oveja, gallina, creeper, slime) se construyen con
+  cajas y colores en `components/BoxMob.tsx`.
+- Los PNG `zombie.png`, `cow.png`, etc. son sprites antiguos opcionales (ya no se usan).
 - `public/textures/skin.png` — skin del jugador (64×64, formato Minecraft clásico).
 - `public/audio/theme.mp3` — (opcional) tu propia música. Para usarla, coloca el
   archivo y ajusta `CUSTOM_TRACK` en `lib/audio.ts` a `"/audio/theme.mp3"`.
