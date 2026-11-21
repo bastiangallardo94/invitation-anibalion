@@ -43,7 +43,7 @@ export default function Game() {
   useEffect(() => {
     if (invitationShown && !downloaded.current) {
       downloaded.current = true;
-      downloadImage("/invitacion-anibal.jpeg", "invitacion-anibal.jpeg");
+      downloadImage("/invitacion-anibal-v2.jpeg", "invitacion-anibal.jpeg");
     }
   }, [invitationShown]);
 

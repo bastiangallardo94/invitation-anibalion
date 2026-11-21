@@ -22,18 +22,23 @@ export function InvitationModal() {
           La descarga comenzó automáticamente. Si no, usa el botón.
         </p>
 
-        <div className="w-full max-w-sm overflow-auto rounded border-4 border-white/20 shadow-lg">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/invitacion-anibal.jpeg"
-            alt="Invitación de cumpleaños de Aníbal"
-            className="mx-auto max-h-[60vh] w-auto"
-          />
+        <div className="w-full max-w-sm overflow-hidden rounded border-4 border-white/20 shadow-lg">
+          <a href="/invitacion-anibal-v2.jpeg" target="_blank" rel="noopener noreferrer" title="Ver invitación completa">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/invitacion-anibal-v2.jpeg"
+              alt="Invitación de cumpleaños de Aníbal"
+              className="mx-auto max-h-[52vh] w-auto"
+            />
+          </a>
         </div>
+        <p className="mt-1 text-center text-[10px] text-white/45">
+          Toca la imagen para verla completa
+        </p>
 
         <div className="mt-4 grid w-full grid-cols-2 gap-2">
           <a
-            href="/invitacion-anibal.jpeg"
+            href="/invitacion-anibal-v2.jpeg"
             download="invitacion-anibal.jpeg"
             className="rounded border-2 border-white bg-[#7ab648] px-4 py-2.5 text-center font-bold text-white shadow transition hover:bg-[#8cc95a]"
           >
